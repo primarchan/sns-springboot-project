@@ -1,5 +1,6 @@
 package com.primarchan.sns.service;
 
+import com.primarchan.sns.exception.ErrorCode;
 import com.primarchan.sns.exception.SnsApplicationException;
 import com.primarchan.sns.fixture.UserEntityFixture;
 import com.primarchan.sns.model.entity.UserEntity;
@@ -9,11 +10,11 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 @SpringBootTest
@@ -25,6 +26,9 @@ class UserServiceTest {
     @MockBean
     private UserEntityRepository userEntityRepository;
 
+    @MockBean
+    private BCryptPasswordEncoder encoder;
+
     @Test
     void 회원가입이_정상적으로_동작하는_경우() {
         String userName = "userName";
@@ -32,7 +36,8 @@ class UserServiceTest {
 
         // mocking
         when(userEntityRepository.findByUserName(userName)).thenReturn(Optional.empty());
-        when(userEntityRepository.save(any())).thenReturn(Optional.of(UserEntityFixture.get(userName, password)));
+        when(encoder.encode(password)).thenReturn("encrypt_password");
+        when(userEntityRepository.save(any())).thenReturn(UserEntityFixture.get(userName, password));
 
         Assertions.assertDoesNotThrow(() -> userService.join(userName, password));
     }
@@ -46,9 +51,11 @@ class UserServiceTest {
 
         // mocking
         when(userEntityRepository.findByUserName(userName)).thenReturn(Optional.of(fixture));
+        when(encoder.encode(password)).thenReturn("encrypt_password");
         when(userEntityRepository.save(any())).thenReturn(Optional.of(fixture));
 
-        Assertions.assertThrows(SnsApplicationException.class, () -> userService.join(userName, password));
+        SnsApplicationException e = Assertions.assertThrows(SnsApplicationException.class, () -> userService.join(userName, password));
+        Assertions.assertEquals(ErrorCode.DUPLICATED_USER_NAME, e.getErrorCode());
     }
 
     @Test
@@ -60,6 +67,7 @@ class UserServiceTest {
 
         // mocking
         when(userEntityRepository.findByUserName(userName)).thenReturn(Optional.of(fixture));
+        when(encoder.matches(password, fixture.getPassword())).thenReturn(true);
 
         Assertions.assertDoesNotThrow(() -> userService.login(userName, password));
     }
@@ -72,7 +80,8 @@ class UserServiceTest {
         // mocking
         when(userEntityRepository.findByUserName(userName)).thenReturn(Optional.empty());
 
-        Assertions.assertThrows(SnsApplicationException.class, () -> userService.login(userName, password));
+        SnsApplicationException e = Assertions.assertThrows(SnsApplicationException.class, () -> userService.login(userName, password));
+        Assertions.assertEquals(ErrorCode.USER_NOT_FOUND, e.getErrorCode());
     }
 
     @Test
@@ -86,7 +95,8 @@ class UserServiceTest {
         // mocking
         when(userEntityRepository.findByUserName(userName)).thenReturn(Optional.of(fixture));
 
-        Assertions.assertThrows(SnsApplicationException.class, () -> userService.login(userName, wrongPassword));
+        SnsApplicationException e =Assertions.assertThrows(SnsApplicationException.class, () -> userService.login(userName, wrongPassword));
+        Assertions.assertEquals(ErrorCode.INVALID_PASSWORD, e.getErrorCode());
     }
 
 }

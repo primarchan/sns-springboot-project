@@ -12,3 +12,8 @@ spring.datasource:
   password: c3b0398a318451084cf5089f2f12b8938ec3c0b0ebcbb2c0fe469c8b21a5f556
   platform: postgres
   driver-class-name: org.postgresql.Driver
+
+jwt:
+  secret-key: primarchan.sns-application-2022.secret_key
+  # 30 Days
+  token.expired-time-ms: 2592000000
