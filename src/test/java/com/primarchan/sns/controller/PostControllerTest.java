@@ -3,7 +3,6 @@ package com.primarchan.sns.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.primarchan.sns.controller.request.PostCreateRequest;
 import com.primarchan.sns.controller.request.PostModifyRequest;
-import com.primarchan.sns.controller.request.UserJoinRequest;
 import com.primarchan.sns.exception.ErrorCode;
 import com.primarchan.sns.exception.SnsApplicationException;
 import com.primarchan.sns.fixture.PostEntityFixture;
@@ -131,7 +130,7 @@ class PostControllerTest {
         mockMvc.perform(delete("/api/v1/posts/1")
                         .contentType(MediaType.APPLICATION_JSON)
                 ).andDo(print())
-                .andExpect(status().isNotFound());
+                .andExpect(status().isOk());
     }
 
     @Test
