@@ -7,6 +7,7 @@ import com.primarchan.sns.model.entity.UserEntity;
 import com.primarchan.sns.repository.PostEntityRepository;
 import com.primarchan.sns.repository.UserEntityRepository;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -30,6 +31,7 @@ class PostServiceTest {
     @MockBean
     private UserEntityRepository userEntityRepository;
 
+    @Test
     void 포스트_작성이_성공한_경우() {
         String title = "title";
         String body = "body";
@@ -42,6 +44,7 @@ class PostServiceTest {
         Assertions.assertDoesNotThrow(() -> postService.create(title, body, userName));
     }
 
+    @Test
     void 포스트_작성시_요청한_유저가_존재하지않는_경우() {
         String title = "title";
         String body = "body";
