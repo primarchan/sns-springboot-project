@@ -1,7 +1,9 @@
 package com.primarchan.sns.controller;
 
+import com.primarchan.sns.controller.request.PostCommentsRequest;
 import com.primarchan.sns.controller.request.PostCreateRequest;
 import com.primarchan.sns.controller.request.PostModifyRequest;
+import com.primarchan.sns.controller.response.CommentResponse;
 import com.primarchan.sns.controller.response.PostResponse;
 import com.primarchan.sns.controller.response.Response;
 import com.primarchan.sns.model.Post;
@@ -94,6 +96,21 @@ public class PostController {
     @GetMapping("{postId}/likes")
     public Response<Integer> likeCount(@PathVariable Integer postId, Authentication authentication) {
         return Response.success(postService.likeCount(postId));
+    }
+
+    @PostMapping("/{postId}/comments")
+    public Response<Void> comment(
+            @PathVariable Integer postId,
+            @RequestBody PostCommentsRequest request,
+            Authentication authentication)
+    {
+        postService.comment(postId, authentication.getName(), request.getComment());
+        return Response.success();
+    }
+
+    @GetMapping("/{postId}/comments")
+    public Response<Page<CommentResponse>> comment(@PathVariable Integer postId, Pageable pageable) {
+        return Response.success(postService.getComments(postId, pageable).map(CommentResponse::fromComment));
     }
 
 }
