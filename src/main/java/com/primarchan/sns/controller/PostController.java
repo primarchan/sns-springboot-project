@@ -57,16 +57,43 @@ public class PostController {
         return Response.success();
     }
 
+    /**
+     * @apiNote 피드 목록 조회 API
+     * @param pageable
+     * @param authentication
+     * @return
+     */
     @GetMapping
     public Response<Page<PostResponse>> list(Pageable pageable, Authentication authentication) {
-
         return Response.success(postService.list(pageable).map(PostResponse::fromPost));
     }
 
+    /**
+     * @apiNote 내 피드 목록 조회 API
+     * @param pageable
+     * @param authentication
+     * @return
+     */
     @GetMapping("/my")
     public Response<Page<PostResponse>> my(Pageable pageable, Authentication authentication) {
-
         return Response.success(postService.my(authentication.getName(), pageable).map(PostResponse::fromPost));
+    }
+
+    /**
+     * @apiNote 좋아요 기능 API
+     * @param postId
+     * @param authentication
+     * @return
+     */
+    @PostMapping("/{postId}/likes")
+    public Response<Void> like(@PathVariable Integer postId, Authentication authentication) {
+        postService.like(postId, authentication.getName());
+        return Response.success();
+    }
+
+    @GetMapping("{postId}/likes")
+    public Response<Integer> likeCount(@PathVariable Integer postId, Authentication authentication) {
+        return Response.success(postService.likeCount(postId));
     }
 
 }
