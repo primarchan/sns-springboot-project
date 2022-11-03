@@ -30,7 +30,7 @@ public class JwtTokenFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
 
-        // header
+        // get header
         final String header = request.getHeader(HttpHeaders.AUTHORIZATION);
         if(header == null || !header.startsWith("Bearer ")) {
             log.error("Error occurs while getting header. Header is null or invalid {}", request.getRequestURL());
@@ -49,9 +49,11 @@ public class JwtTokenFilter extends OncePerRequestFilter {
 
             String userName = JwtTokenUtils.getUserName(token, key);
             User user = userService.loadUserByUserName(userName);
+
             UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
                     user, null, user.getAuthorities()
             );
+
             authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
             SecurityContextHolder.getContext().setAuthentication(authentication);
         } catch (RuntimeException e) {
