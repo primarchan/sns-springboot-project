@@ -114,7 +114,7 @@ public class UserControllerTest {
     void 알람기능() throws Exception {
         when(userService.alarmList(any(), any())).thenReturn(Page.empty());
 
-        mockMvc.perform(get("/api/vi/users/alarm")
+        mockMvc.perform(get("/api/v1/users/alarm")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isOk());
@@ -125,7 +125,7 @@ public class UserControllerTest {
     void 알람기능_요청시_로그인하지않은_걍우() throws Exception {
         when(userService.alarmList(any(), any())).thenReturn(Page.empty());
 
-        mockMvc.perform(get("/api/vi/users/alarm")
+        mockMvc.perform(get("/api/v1/users/alarm")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isUnauthorized());

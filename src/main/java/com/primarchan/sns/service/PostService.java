@@ -2,24 +2,17 @@ package com.primarchan.sns.service;
 
 import com.primarchan.sns.exception.ErrorCode;
 import com.primarchan.sns.exception.SnsApplicationException;
+import com.primarchan.sns.model.AlarmArgs;
+import com.primarchan.sns.model.AlarmType;
 import com.primarchan.sns.model.Comment;
 import com.primarchan.sns.model.Post;
-import com.primarchan.sns.model.entity.CommentEntity;
-import com.primarchan.sns.model.entity.LikeEntity;
-import com.primarchan.sns.model.entity.PostEntity;
-import com.primarchan.sns.model.entity.UserEntity;
-import com.primarchan.sns.repository.CommentEntityRepository;
-import com.primarchan.sns.repository.LikeEntityRepository;
-import com.primarchan.sns.repository.PostEntityRepository;
-import com.primarchan.sns.repository.UserEntityRepository;
+import com.primarchan.sns.model.entity.*;
+import com.primarchan.sns.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import javax.persistence.criteria.CriteriaBuilder;
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -29,6 +22,7 @@ public class PostService {
     private final UserEntityRepository userEntityRepository;
     private final LikeEntityRepository likeEntityRepository;
     private final CommentEntityRepository commentEntityRepository;
+    private final AlarmEntityRepository alarmEntityRepository;
 
     @Transactional
     public void create(String title, String body, String userName) {
@@ -83,7 +77,11 @@ public class PostService {
             throw new SnsApplicationException(ErrorCode.ALREADY_LIKED, String.format("userName %s already like post %d", userName, postId));
         });
 
+        // like save
         likeEntityRepository.save(LikeEntity.of(userEntity, postEntity));
+
+        // alarm save
+        alarmEntityRepository.save(AlarmEntity.of(postEntity.getUser(), AlarmType.NEW_LIKE_ON_POST, new AlarmArgs(userEntity.getId(), postEntity.getId())));
     }
 
     @Transactional
@@ -100,6 +98,9 @@ public class PostService {
 
         // comment save
         commentEntityRepository.save(CommentEntity.of(userEntity, postEntity, comment));
+
+        // alarm save
+        alarmEntityRepository.save(AlarmEntity.of(postEntity.getUser(), AlarmType.NEW_COMMENT_ON_POST, new AlarmArgs(userEntity.getId(), postEntity.getId())));
     }
 
     public Page<Comment> getComments(Integer postId, Pageable pageable) {
