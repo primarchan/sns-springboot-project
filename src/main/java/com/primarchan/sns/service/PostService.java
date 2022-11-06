@@ -7,6 +7,8 @@ import com.primarchan.sns.model.AlarmType;
 import com.primarchan.sns.model.Comment;
 import com.primarchan.sns.model.Post;
 import com.primarchan.sns.model.entity.*;
+import com.primarchan.sns.model.event.AlarmEvent;
+import com.primarchan.sns.producer.AlarmProducer;
 import com.primarchan.sns.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -24,6 +26,7 @@ public class PostService {
     private final CommentEntityRepository commentEntityRepository;
     private final AlarmEntityRepository alarmEntityRepository;
     private final AlarmService alarmService;
+    private final AlarmProducer alarmProducer;
 
     @Transactional
     public void create(String title, String body, String userName) {
@@ -83,10 +86,11 @@ public class PostService {
         likeEntityRepository.save(LikeEntity.of(userEntity, postEntity));
 
         // alarm save
-        AlarmEntity alarmEntity = alarmEntityRepository.save(AlarmEntity.of(postEntity.getUser(), AlarmType.NEW_LIKE_ON_POST, new AlarmArgs(userEntity.getId(), postEntity.getId())));
+        // AlarmEntity alarmEntity = alarmEntityRepository.save(AlarmEntity.of(postEntity.getUser(), AlarmType.NEW_LIKE_ON_POST, new AlarmArgs(userEntity.getId(), postEntity.getId())));
 
         // alarm send
-        alarmService.send(alarmEntity.getId(), postEntity.getUser().getId());
+        // alarmService.send(alarmEntity.getId(), postEntity.getUser().getId());
+        alarmProducer.send(new AlarmEvent(postEntity.getUser().getId(), AlarmType.NEW_LIKE_ON_POST, new AlarmArgs(userEntity.getId(), postEntity.getId())));
     }
 
     @Transactional
@@ -105,10 +109,11 @@ public class PostService {
         commentEntityRepository.save(CommentEntity.of(userEntity, postEntity, comment));
 
         // alarm save
-        AlarmEntity alarmEntity = alarmEntityRepository.save(AlarmEntity.of(postEntity.getUser(), AlarmType.NEW_COMMENT_ON_POST, new AlarmArgs(userEntity.getId(), postEntity.getId())));
+        // AlarmEntity alarmEntity = alarmEntityRepository.save(AlarmEntity.of(postEntity.getUser(), AlarmType.NEW_COMMENT_ON_POST, new AlarmArgs(userEntity.getId(), postEntity.getId())));
 
         // alarm send
-        alarmService.send(alarmEntity.getId(), postEntity.getUser().getId());
+        // alarmService.send(alarmEntity.getId(), postEntity.getUser().getId());
+        alarmProducer.send(new AlarmEvent(postEntity.getUser().getId(), AlarmType.NEW_COMMENT_ON_POST, new AlarmArgs(userEntity.getId(), postEntity.getId())));
     }
 
     public Page<Comment> getComments(Integer postId, Pageable pageable) {
