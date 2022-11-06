@@ -17,3 +17,5 @@ jwt:
   secret-key: primarchan.sns-application-2022.secret_key
   # 30 Days
   token.expired-time-ms: 2592000000
+
+spring.redis.url: redis://:p113bfabb593c4e5270525b17d5c3f13102b02aa7dcef2523b55d0ad89be743f5@ec2-54-204-184-129.compute-1.amazonaws.com:11889
